@@ -678,7 +678,7 @@ body.sidebar-open #sidebar {
   padding: 1vh 0;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
 }
 .poem-line {
   font-size: var(--f-md);
