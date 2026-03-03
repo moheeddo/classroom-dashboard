@@ -9,35 +9,34 @@ function getSeason(month) {
   if (month >= 9 && month <= 11) return 'autumn';
   return 'winter';
 }
-
-function getSeasonLabel(season) {
-  return { spring: '🌸 봄', summer: '☀️ 여름', autumn: '🍂 가을', winter: '❄️ 겨울' }[season];
+function getSeasonLabel(s) {
+  return { spring:'🌸 봄', summer:'☀️ 여름', autumn:'🍂 가을', winter:'❄️ 겨울' }[s];
 }
 
 // ── 요일 정보 ───────────────────────────────────────────
 const DAY_INFO = [
-  { label: '일요일', theme: '☀️ 주말',     bg: 'weekend',   api: 'weekend' },
-  { label: '월요일', theme: '💌 선생님 편지', bg: 'monday',  api: 'monday'  },
-  { label: '화요일', theme: '📖 오늘의 동시', bg: 'tuesday', api: 'tuesday' },
-  { label: '수요일', theme: '📚 사자성어',   bg: 'wednesday',api: 'wednesday'},
-  { label: '목요일', theme: '🎨 명화 이야기', bg: 'thursday',api: 'thursday'},
-  { label: '금요일', theme: '🔭 오늘의 발견', bg: 'friday',  api: 'friday'  },
-  { label: '토요일', theme: '☀️ 주말',     bg: 'weekend',   api: 'weekend' },
+  { label:'일요일', theme:'☀️ 주말',       api:'weekend'   },
+  { label:'월요일', theme:'💌 선생님 편지', api:'monday'    },
+  { label:'화요일', theme:'📖 오늘의 동시', api:'tuesday'   },
+  { label:'수요일', theme:'📚 사자성어',   api:'wednesday' },
+  { label:'목요일', theme:'🎨 명화 이야기',api:'thursday'  },
+  { label:'금요일', theme:'🔭 오늘의 발견',api:'friday'    },
+  { label:'토요일', theme:'☀️ 주말',       api:'weekend'   },
 ];
 
 // ── 상태 ────────────────────────────────────────────────
 const state = {
   season: 'spring',
-  dayIndex: 1,
+  todayDayIndex: 1,      // 실제 오늘 요일 (0=일~6=토)
+  viewDayIndex: 1,       // 현재 보고 있는 요일
   slideIndex: 0,
-  totalSlides: 1,
   slideTimer: null,
   progressTimer: null,
   progressStart: 0,
   slideDuration: 0,
 };
 
-// ── DOM 캐시 ────────────────────────────────────────────
+// ── DOM ──────────────────────────────────────────────────
 const $  = id => document.getElementById(id);
 const el = {
   clock:      $('clock'),
@@ -49,45 +48,64 @@ const el = {
   indicator:  $('slide-indicator'),
   progress:   $('progress-bar'),
   counter:    $('slide-counter'),
+  viewLabel:  $('view-label'),
+  sidebarDate:$('sidebar-date'),
+  sidebarSeason:$('sidebar-season'),
 };
 
 // ── 시계 ────────────────────────────────────────────────
 function updateClock() {
-  const now  = new Date();
-  const h    = String(now.getHours()).padStart(2, '0');
-  const m    = String(now.getMinutes()).padStart(2, '0');
-  const s    = String(now.getSeconds()).padStart(2, '0');
-  el.clock.textContent = `${h}:${m}:${s}`;
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  el.clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 }
 
+// ── 날짜/계절 갱신 ──────────────────────────────────────
 function updateDateDisplay() {
-  const now   = new Date();
-  const month = now.getMonth() + 1;
-  const day   = now.getDate();
-  const weeks = ['일', '월', '화', '수', '목', '금', '토'];
-  const dayKo = weeks[now.getDay()];
-  el.date.textContent    = `${now.getFullYear()}년 ${month}월 ${day}일`;
-  el.weekday.textContent = `${dayKo}요일`;
+  const now    = new Date();
+  const month  = now.getMonth() + 1;
+  const day    = now.getDate();
+  const weekKo = ['일','월','화','수','목','금','토'];
 
-  state.season   = getSeason(month);
-  state.dayIndex = now.getDay();
+  state.season        = getSeason(month);
+  state.todayDayIndex = now.getDay();
+  if (state.viewDayIndex === undefined) state.viewDayIndex = state.todayDayIndex;
 
   document.body.className = `season-${state.season}`;
-  el.seasonBadge.textContent = getSeasonLabel(state.season);
-  el.dayBadge.textContent    = DAY_INFO[state.dayIndex].theme;
-  $('school-name').textContent = '우리 초등학교 4학년';
+
+  el.date.textContent     = `${now.getFullYear()}년 ${month}월 ${day}일`;
+  el.weekday.textContent  = `${weekKo[now.getDay()]}요일`;
+  el.seasonBadge.textContent  = getSeasonLabel(state.season);
+  el.dayBadge.textContent     = DAY_INFO[state.todayDayIndex].theme;
+
+  // 사이드바
+  el.sidebarDate.innerHTML = `${now.getFullYear()}년<br>${month}월 ${day}일 (${weekKo[now.getDay()]})`;
+  el.sidebarSeason.textContent = getSeasonLabel(state.season);
+
+  // 파티클 계절 갱신
+  if (window.particleSystem) window.particleSystem.setSeason(state.season);
+
+  // 사이드바 오늘 표시 갱신
+  highlightTodayNav();
+}
+
+// ── 이번 주 특정 요일의 날짜 계산 ───────────────────────
+function getWeekDateStr(targetDayIdx) {
+  const now  = new Date();
+  const diff = targetDayIdx - now.getDay();
+  const d    = new Date(now);
+  d.setDate(now.getDate() + diff);
+  return d.toISOString().split('T')[0]; // YYYY-MM-DD
 }
 
 // ── 프로그레스 바 ────────────────────────────────────────
-function startProgress(durationMs) {
+function startProgress(ms) {
   clearInterval(state.progressTimer);
-  state.progressStart  = Date.now();
-  state.slideDuration  = durationMs;
+  state.progressStart = Date.now();
+  state.slideDuration = ms;
   el.progress.style.width = '0%';
-
   state.progressTimer = setInterval(() => {
-    const elapsed = Date.now() - state.progressStart;
-    const pct     = Math.min((elapsed / durationMs) * 100, 100);
+    const pct = Math.min(((Date.now()-state.progressStart)/ms)*100, 100);
     el.progress.style.width = pct + '%';
     if (pct >= 100) clearInterval(state.progressTimer);
   }, 100);
@@ -104,7 +122,7 @@ function renderIndicator(total, current) {
     dot.addEventListener('click', () => goToSlide(i));
     el.indicator.appendChild(dot);
   }
-  el.counter.textContent = `${current + 1} / ${total}`;
+  el.counter.textContent = `${current+1} / ${total}`;
 }
 
 function goToSlide(idx) {
@@ -113,63 +131,88 @@ function goToSlide(idx) {
 }
 
 // ── 자동 슬라이드 ────────────────────────────────────────
-function autoSlide(total, durationMs, renderFn) {
+function autoSlide(total, ms, renderFn) {
   clearTimeout(state.slideTimer);
   state.totalSlides = total;
   window._currentRenderer = renderFn;
-
   renderFn(state.slideIndex);
   renderIndicator(total, state.slideIndex);
-  startProgress(durationMs);
+  startProgress(ms);
 
   state.slideTimer = setTimeout(function tick() {
     state.slideIndex = (state.slideIndex + 1) % total;
     renderFn(state.slideIndex);
     renderIndicator(total, state.slideIndex);
-    startProgress(durationMs);
-    state.slideTimer = setTimeout(tick, durationMs);
-  }, durationMs);
+    startProgress(ms);
+    state.slideTimer = setTimeout(tick, ms);
+  }, ms);
 }
 
-// ── 에러 화면 ────────────────────────────────────────────
-function showError(msg) {
-  el.content.innerHTML = `
-    <div class="error-screen">
-      <h2>⚠️ 콘텐츠를 불러오지 못했어요</h2>
-      <p>${msg}</p>
-      <p style="margin-top:2vh; font-size:var(--f-xs);">잠시 후 자동으로 다시 시도합니다...</p>
-    </div>`;
-  setTimeout(initContent, 30000);
-}
-
-// ── 로딩 ────────────────────────────────────────────────
-function showLoading() {
+// ── 로딩 / 에러 ──────────────────────────────────────────
+function showLoading(msg) {
   el.content.innerHTML = `
     <div class="loading-screen">
       <div class="loading-orb"></div>
-      <p class="loading-text">오늘의 콘텐츠를 준비하고 있어요...</p>
+      <p class="loading-text">${msg || '오늘의 콘텐츠를 준비하고 있어요...'}</p>
     </div>`;
 }
+function showError(msg) {
+  el.content.innerHTML = `
+    <div class="error-screen">
+      <h2>⚠️ 불러오지 못했어요</h2>
+      <p>${msg}</p>
+    </div>`;
+  setTimeout(() => loadDayContent(state.todayDayIndex), 30000);
+}
 
-// ── API 호출 ────────────────────────────────────────────
-async function fetchContent(endpoint) {
-  const res = await fetch(`/api/${endpoint}`);
+// ── API 호출 (date 파라미터 포함) ───────────────────────
+async function fetchContent(endpoint, dateStr) {
+  const url = dateStr ? `/api/${endpoint}?date=${dateStr}` : `/api/${endpoint}`;
+  const res  = await fetch(url);
   if (!res.ok) throw new Error(`API 오류 (${res.status})`);
   return res.json();
 }
 
-// ── 콘텐츠 초기화 ────────────────────────────────────────
-async function initContent() {
-  showLoading();
+// ── 뷰 라벨 업데이트 ────────────────────────────────────
+function updateViewLabel(dayIdx) {
+  if (dayIdx === state.todayDayIndex) {
+    el.viewLabel.style.display = 'none';
+  } else {
+    const weekKo = ['일','월','화','수','목','금','토'];
+    const dateStr = getWeekDateStr(dayIdx);
+    el.viewLabel.style.display = 'block';
+    el.viewLabel.textContent   = `📅 ${weekKo[dayIdx]}요일 (${dateStr}) 콘텐츠 보는 중 · 클릭하면 오늘로 돌아가요`;
+    el.viewLabel.style.cursor  = 'pointer';
+    el.viewLabel.onclick       = () => loadDayContent(state.todayDayIndex);
+  }
+}
+
+// ── 요일 콘텐츠 로드 ────────────────────────────────────
+async function loadDayContent(dayIdx, dateStr) {
+  state.viewDayIndex = dayIdx;
+  state.slideIndex   = 0;
   clearTimeout(state.slideTimer);
   clearInterval(state.progressTimer);
-  state.slideIndex = 0;
 
-  const info = DAY_INFO[state.dayIndex];
+  const info     = DAY_INFO[dayIdx];
+  const targetDate = dateStr || getWeekDateStr(dayIdx);
+
+  // 사이드바 활성 표시
+  setNavActive(dayIdx);
+  updateViewLabel(dayIdx);
+  el.dayBadge.textContent = info.theme;
+
+  // API가 weekend인 경우 날짜 계산이 의미 없으므로 오늘 기준
+  const apiDate = (dayIdx === 0 || dayIdx === 6)
+    ? getWeekDateStr(state.todayDayIndex)
+    : targetDate;
+
+  showLoading(dayIdx !== state.todayDayIndex
+    ? '다른 요일 자료를 불러오는 중...'
+    : undefined);
 
   try {
-    const data = await fetchContent(info.api);
-
+    const data = await fetchContent(info.api, apiDate);
     switch (info.api) {
       case 'monday':    renderMonday(data);    break;
       case 'tuesday':   renderTuesday(data);   break;
@@ -177,12 +220,41 @@ async function initContent() {
       case 'thursday':  renderThursday(data);  break;
       case 'friday':    renderFriday(data);    break;
       case 'weekend':   renderWeekend(data);   break;
-      default:          showError('알 수 없는 요일입니다.');
     }
   } catch (err) {
     console.error(err);
     showError(err.message);
   }
+}
+
+// ── 사이드바 요일 네비 ───────────────────────────────────
+function highlightTodayNav() {
+  document.querySelectorAll('.nav-day').forEach(btn => {
+    const d = parseInt(btn.dataset.day);
+    btn.classList.toggle('today', d === state.todayDayIndex);
+    btn.classList.toggle('active', d === state.viewDayIndex);
+  });
+}
+
+function setNavActive(dayIdx) {
+  document.querySelectorAll('.nav-day').forEach(btn => {
+    const d = parseInt(btn.dataset.day);
+    btn.classList.toggle('active', d === dayIdx);
+    btn.classList.toggle('today',  d === state.todayDayIndex);
+  });
+}
+
+function initSidebarNav() {
+  document.querySelectorAll('.nav-day').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dayIdx = parseInt(btn.dataset.day);
+      // 이미 같은 요일 → 스킵
+      if (dayIdx === state.viewDayIndex) return;
+      // 로딩 스피너 표시
+      btn.classList.add('loading-nav');
+      loadDayContent(dayIdx).finally(() => btn.classList.remove('loading-nav'));
+    });
+  });
 }
 
 // ── 초기화 ──────────────────────────────────────────────
@@ -191,26 +263,28 @@ function init() {
   updateDateDisplay();
   setInterval(updateClock, 1000);
 
-  // 날짜는 자정마다 갱신
+  // 자정 갱신
   const msToMidnight = (() => {
     const n = new Date();
-    return new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1) - n;
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate()+1) - n;
   })();
   setTimeout(() => {
     updateDateDisplay();
-    initContent();
-    setInterval(() => { updateDateDisplay(); initContent(); }, 86400000);
+    loadDayContent(state.todayDayIndex);
+    setInterval(() => { updateDateDisplay(); loadDayContent(state.todayDayIndex); }, 86400000);
   }, msToMidnight);
 
-  // 파티클 시작
-  window.particleSystem.setSeason(state.season || 'spring');
+  // 파티클
+  window.particleSystem.setSeason(state.season);
   window.particleSystem.start();
 
-  // 콘텐츠 로드
-  initContent();
+  // 사이드바 네비 클릭 이벤트
+  initSidebarNav();
+
+  // 오늘 콘텐츠 로드
+  loadDayContent(state.todayDayIndex);
 }
 
-// DOM 준비되면 실행
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {

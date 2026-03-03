@@ -53,12 +53,15 @@ async function callPerplexity(userPrompt, systemPrompt, maxTokens = 2000) {
 function todayKey() {
   return new Date().toISOString().split('T')[0];
 }
-function cacheGet(name) {
-  const f = path.join(CACHE_DIR, `${todayKey()}_${name}.json`);
+// date 파라미터 지원 – 없으면 오늘 날짜
+function cacheGet(name, date) {
+  const key = date || todayKey();
+  const f = path.join(CACHE_DIR, `${key}_${name}.json`);
   return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null;
 }
-function cacheSet(name, data) {
-  const f = path.join(CACHE_DIR, `${todayKey()}_${name}.json`);
+function cacheSet(name, data, date) {
+  const key = date || todayKey();
+  const f = path.join(CACHE_DIR, `${key}_${name}.json`);
   fs.writeFileSync(f, JSON.stringify(data, null, 2), 'utf8');
 }
 
@@ -75,7 +78,8 @@ function safeJson(raw) {
 //  월요일 – 선생님 편지
 // ─────────────────────────────────────────
 app.get('/api/monday', async (req, res) => {
-  const cached = cacheGet('monday');
+  const date = req.query.date || todayKey();
+  const cached = cacheGet('monday', date);
   if (cached) return res.json(cached);
 
   const { teacher } = config;
@@ -105,7 +109,7 @@ app.get('/api/monday', async (req, res) => {
     const data = parsed || { greeting: '', body: raw, closing: '' };
     data.teacherName = teacher.name;
     data.date = dateStr;
-    cacheSet('monday', data);
+    cacheSet('monday', data, date);
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -116,7 +120,8 @@ app.get('/api/monday', async (req, res) => {
 //  화요일 – 동시
 // ─────────────────────────────────────────
 app.get('/api/tuesday', async (req, res) => {
-  const cached = cacheGet('tuesday');
+  const date = req.query.date || todayKey();
+  const cached = cacheGet('tuesday', date);
   if (cached) return res.json(cached);
 
   try {
@@ -138,7 +143,7 @@ app.get('/api/tuesday', async (req, res) => {
 
     const raw = await callPerplexity(user, system);
     const data = safeJson(raw) || { poems: [] };
-    cacheSet('tuesday', data);
+    cacheSet('tuesday', data, date);
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -149,7 +154,8 @@ app.get('/api/tuesday', async (req, res) => {
 //  수요일 – 사자성어
 // ─────────────────────────────────────────
 app.get('/api/wednesday', async (req, res) => {
-  const cached = cacheGet('wednesday');
+  const date = req.query.date || todayKey();
+  const cached = cacheGet('wednesday', date);
   if (cached) return res.json(cached);
 
   try {
@@ -167,7 +173,7 @@ app.get('/api/wednesday', async (req, res) => {
 
     const raw = await callPerplexity(user, system);
     const data = safeJson(raw) || {};
-    cacheSet('wednesday', data);
+    cacheSet('wednesday', data, date);
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -178,7 +184,8 @@ app.get('/api/wednesday', async (req, res) => {
 //  목요일 – 명화
 // ─────────────────────────────────────────
 app.get('/api/thursday', async (req, res) => {
-  const cached = cacheGet('thursday');
+  const date = req.query.date || todayKey();
+  const cached = cacheGet('thursday', date);
   if (cached) return res.json(cached);
 
   try {
@@ -201,7 +208,7 @@ app.get('/api/thursday', async (req, res) => {
 
     const raw = await callPerplexity(user, system, 2500);
     const data = safeJson(raw) || {};
-    cacheSet('thursday', data);
+    cacheSet('thursday', data, date);
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -221,7 +228,8 @@ const FRIDAY_CATEGORIES = [
 ];
 
 app.get('/api/friday', async (req, res) => {
-  const cached = cacheGet('friday');
+  const date = req.query.date || todayKey();
+  const cached = cacheGet('friday', date);
   if (cached) return res.json(cached);
 
   const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
@@ -246,7 +254,7 @@ app.get('/api/friday', async (req, res) => {
 
     const raw = await callPerplexity(user, system);
     const data = safeJson(raw) || { category: cat.name, categoryEmoji: cat.emoji, facts: [] };
-    cacheSet('friday', data);
+    cacheSet('friday', data, date);
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -257,7 +265,8 @@ app.get('/api/friday', async (req, res) => {
 //  주말 – 편안한 메시지
 // ─────────────────────────────────────────
 app.get('/api/weekend', async (req, res) => {
-  const cached = cacheGet('weekend');
+  const date = req.query.date || todayKey();
+  const cached = cacheGet('weekend', date);
   if (cached) return res.json(cached);
 
   try {
@@ -273,7 +282,7 @@ app.get('/api/weekend', async (req, res) => {
 
     const raw = await callPerplexity(user, system, 1000);
     const data = safeJson(raw) || {};
-    cacheSet('weekend', data);
+    cacheSet('weekend', data, date);
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: e.message });

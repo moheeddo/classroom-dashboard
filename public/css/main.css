@@ -5,8 +5,8 @@
 
 /* ── 폰트 변수 ─────────────────────────────────────── */
 :root {
-  --font-sans: 'Noto Sans KR', sans-serif;
-  --font-serif: 'Nanum Myeongjo', serif;
+  --font-sans:  'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  --font-serif: 'Nanum Myeongjo', Georgia, serif;
 
   /* 4K 기준 vw 비율 폰트 (FHD에서도 적당히 큼) */
   --f-hero:   clamp(3rem,  6vw,   9rem);
@@ -101,17 +101,204 @@ body {
   z-index: 0;
 }
 
-/* ── 앱 레이아웃 ────────────────────────────────────── */
+/* ── 앱 레이아웃 (사이드바 + 메인) ──────────────────── */
 #app {
   position: relative;
   z-index: 1;
   width: 100vw;
   height: 100vh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  grid-template-columns: 1fr;
+  display: flex;
   gap: 0;
-  padding: 2vh 2.5vw;
+}
+
+/* ── 사이드바 ────────────────────────────────────────── */
+#sidebar {
+  width: clamp(180px, 14vw, 260px);
+  height: 100vh;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2.5vh 1.2vw;
+  gap: 0;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-right: 1px solid rgba(255,255,255,0.15);
+  overflow: hidden;
+}
+
+/* 로고 영역 */
+.sidebar-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2vh;
+  padding-bottom: 1.5vh;
+}
+.school-emblem {
+  width: clamp(52px, 5.5vw, 90px);
+  height: clamp(52px, 5.5vw, 90px);
+  filter: drop-shadow(0 0 12px var(--glow));
+  animation: floatY 4s ease-in-out infinite;
+}
+.school-emblem svg { width: 100%; height: 100%; }
+
+.school-name-wrap { text-align: center; }
+.school-name-main {
+  font-size: clamp(0.9rem, 1.1vw, 1.6rem);
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.school-name-sub {
+  font-size: clamp(0.75rem, 0.9vw, 1.3rem);
+  font-weight: 600;
+  color: var(--accent1);
+  margin-top: 0.3vh;
+  letter-spacing: 0.05em;
+}
+
+/* 구분선 */
+.sidebar-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  margin: 1.5vh 0;
+  flex-shrink: 0;
+}
+
+/* 요일 네비 */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vh;
+  flex: 1;
+  overflow: hidden;
+}
+.nav-label {
+  font-size: clamp(0.65rem, 0.8vw, 1.1rem);
+  font-weight: 700;
+  color: var(--text-sub);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5vh;
+  padding-left: 0.5vw;
+  opacity: 0.7;
+}
+
+.nav-day {
+  display: flex;
+  align-items: center;
+  gap: 0.8vw;
+  padding: 1vh 0.8vw;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out-expo);
+  text-align: left;
+  width: 100%;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+.nav-day::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.3s ease;
+  border-radius: inherit;
+}
+.nav-day:hover::before,
+.nav-day.active::before {
+  background: rgba(255,255,255,0.12);
+}
+.nav-day.active {
+  border-color: rgba(255,255,255,0.3);
+  box-shadow: 0 0 16px var(--glow);
+}
+.nav-day.today {
+  background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+  border-color: var(--accent1);
+  border-width: 1.5px;
+}
+
+.nav-day-icon {
+  font-size: clamp(1rem, 1.4vw, 2rem);
+  flex-shrink: 0;
+  line-height: 1;
+}
+.nav-day-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1vh;
+  min-width: 0;
+}
+.nav-day-text {
+  font-size: clamp(0.78rem, 1vw, 1.4rem);
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+.nav-day-sub {
+  font-size: clamp(0.6rem, 0.75vw, 1rem);
+  color: var(--text-sub);
+  font-weight: 400;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-day.loading-nav .nav-day-icon {
+  animation: spin 1s linear infinite;
+}
+
+/* 사이드바 하단 */
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6vh;
+  padding-top: 0.5vh;
+}
+.sidebar-date {
+  font-size: clamp(0.65rem, 0.8vw, 1.1rem);
+  color: var(--text-sub);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.5;
+}
+.sidebar-season-txt {
+  font-size: clamp(0.7rem, 0.9vw, 1.2rem);
+  color: var(--accent1);
+  font-weight: 700;
+}
+
+/* ── 메인 랩 ─────────────────────────────────────────── */
+#main-wrap {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto;
+  padding: 2vh 2.5vw 2vh 1.5vw;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* 뷰 라벨 (다른 요일 볼 때) */
+.view-label {
+  text-align: center;
+  padding: 0.6vh 2vw;
+  margin-bottom: 1vh;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-md);
+  font-size: var(--f-xs);
+  font-weight: 600;
+  color: var(--accent1);
+  letter-spacing: 0.05em;
+  animation: fadeIn 0.4s ease;
 }
 
 /* ── 글래스 카드 믹스인 ─────────────────────────────── */
@@ -129,8 +316,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.2vh 2.5vw;
-  margin-bottom: 2vh;
+  padding: 1.2vh 2vw;
+  margin-bottom: 1.5vh;
   background: rgba(255,255,255,0.1);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);

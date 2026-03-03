@@ -8,7 +8,9 @@
   },
   "classroom": {
     "grade": 4,
-    "school": "우리 초등학교",
+    "classNum": 3,
+    "school": "복산초등학교",
+    "city": "울산",
     "displayMinutes": 30
   }
 }
