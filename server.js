@@ -14,7 +14,7 @@ const CACHE_DIR = process.env.VERCEL
 
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 // ─────────────────────────────────────────
