@@ -678,10 +678,10 @@ body.sidebar-open #sidebar {
   padding: 1vh 0;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
 }
 .poem-line {
-  font-size: var(--f-md);
+  font-size: var(--dynamic-poem-size, var(--f-md));
   font-family: var(--font-serif);
   font-weight: 400;
   color: var(--text-main);
