@@ -248,13 +248,19 @@ function initSidebarNav() {
   document.querySelectorAll('.nav-day').forEach(btn => {
     btn.addEventListener('click', () => {
       const dayIdx = parseInt(btn.dataset.day);
-      // 이미 같은 요일 → 스킵
+      document.body.classList.remove('sidebar-open');
       if (dayIdx === state.viewDayIndex) return;
-      // 로딩 스피너 표시
       btn.classList.add('loading-nav');
       loadDayContent(dayIdx).finally(() => btn.classList.remove('loading-nav'));
     });
   });
+}
+
+function initMenuToggle() {
+  const toggle   = document.getElementById('menu-toggle');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  if (toggle)   toggle.addEventListener('click', () => document.body.classList.toggle('sidebar-open'));
+  if (backdrop) backdrop.addEventListener('click', () => document.body.classList.remove('sidebar-open'));
 }
 
 // ── 초기화 ──────────────────────────────────────────────
@@ -280,6 +286,9 @@ function init() {
 
   // 사이드바 네비 클릭 이벤트
   initSidebarNav();
+
+  // 햄버거 메뉴 토글
+  initMenuToggle();
 
   // 오늘 콘텐츠 로드
   loadDayContent(state.todayDayIndex);

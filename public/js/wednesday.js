@@ -22,6 +22,7 @@ function renderWednesday(data) {
 
       <!-- 오른쪽: 이야기 + 예문 + 팁 -->
       <div class="idiom-detail glass">
+        ${data.origin ? `<div class="idiom-origin" id="wOrigin" style="opacity:0">📚 출처: ${data.origin}</div>` : ''}
         <div class="idiom-section-title" style="opacity:0" id="wStory">📖 유래 이야기</div>
         <div class="idiom-story" id="wednesdayStory" style="opacity:0">${data.story}</div>
 
@@ -39,12 +40,13 @@ function renderWednesday(data) {
     ['wednesdayHanja',   200],
     ['wednesdayKorean',  700],
     ['wednesdayMeaning', 1200],
-    ['wStory',           2000],
-    ['wednesdayStory',   2300],
-    ['wEx',              3800],
-    ['wednesdayExample', 4100],
-    ['wTip',             5200],
-    ['wednesdayTip',     5500],
+    ['wOrigin',          1800],
+    ['wStory',           2200],
+    ['wednesdayStory',   2500],
+    ['wEx',              4000],
+    ['wednesdayExample', 4300],
+    ['wTip',             5400],
+    ['wednesdayTip',     5700],
   ];
 
   seq.forEach(([id, delay]) => {

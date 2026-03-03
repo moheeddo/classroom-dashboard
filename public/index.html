@@ -11,6 +11,7 @@
 </head>
 <body class="season-spring">
   <canvas id="particles-canvas"></canvas>
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
   <div id="app">
     <aside id="sidebar">
       <div class="sidebar-logo">
@@ -87,8 +88,11 @@
     <div id="main-wrap">
       <header id="header">
         <div class="header-left">
-          <div id="date-display"    class="header-date"></div>
-          <div id="weekday-display" class="header-weekday"></div>
+          <button id="menu-toggle" class="menu-toggle">☰</button>
+          <div class="header-left-info">
+            <div id="date-display"    class="header-date"></div>
+            <div id="weekday-display" class="header-weekday"></div>
+          </div>
         </div>
         <div class="header-center">
           <div id="clock" class="clock"></div>

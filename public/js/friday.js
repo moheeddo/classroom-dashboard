@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   금요일 – 오늘의 신기한 발견
+   금요일 – 역사 속 오늘
 ═══════════════════════════════════════════════ */
 
 const FACT_SLIDE_MS = 4 * 60 * 1000; // 4분씩 (5개 × 4분 = 20분, 반복)
@@ -8,7 +8,7 @@ function renderFriday(data) {
   const facts = data.facts || [];
   if (!facts.length) {
     document.getElementById('content').innerHTML =
-      '<div class="error-screen"><h2>오늘의 발견을 불러오지 못했어요 😢</h2></div>';
+      '<div class="error-screen"><h2>역사 속 오늘을 불러오지 못했어요 😢</h2></div>';
     return;
   }
 
@@ -21,12 +21,13 @@ function showFact(data, fact, idx, total) {
   content.innerHTML = `
     <div class="slide-wrapper friday-wrap">
 
-      <!-- 카테고리 헤더 -->
+      <!-- 헤더 -->
       <div class="friday-header">
         <div class="friday-category">
-          ${data.categoryEmoji || '✨'} 오늘의 신기한 발견 – ${data.category || ''}
+          ${data.categoryEmoji || '🏛️'} ${data.category || '역사 속 오늘'}
         </div>
-        <div class="friday-subtitle">알면 알수록 신기한 세상 이야기</div>
+        <div class="friday-date-label">${data.dateLabel || ''}</div>
+        <div class="friday-subtitle">오늘, 역사 속에서 무슨 일이 있었을까요?</div>
       </div>
 
       <!-- 사실 카드 -->
@@ -36,9 +37,10 @@ function showFact(data, fact, idx, total) {
         <div class="fact-emoji-big">${fact.emoji || '🌟'}</div>
 
         <div class="fact-content">
+          ${fact.year ? `<div class="fact-year">${fact.year}</div>` : ''}
           <div class="fact-title">${fact.title}</div>
           <div class="fact-body">${fact.content}</div>
-          <div class="fact-wow">⚡ ${fact.wow || '정말 신기하죠?'}</div>
+          <div class="fact-wow">⚡ ${fact.wow || '정말 놀랍죠?'}</div>
         </div>
       </div>
 

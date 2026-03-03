@@ -2,11 +2,23 @@
    월요일 – 정희원 선생님의 편지
 ═══════════════════════════════════════════════ */
 
+// Perplexity 인용번호 [1][2] 등 제거
+function cleanCitations(text) {
+  return (text || '').replace(/\[\d+\]/g, '').replace(/\s{2,}/g, ' ').trim();
+}
+
 function renderMonday(data) {
   const content = document.getElementById('content');
 
-  // 타이핑 효과용 텍스트 분해
-  const fullBody = data.body || '';
+  // 인용번호 제거
+  const fullBody = cleanCitations(data.body);
+  data = {
+    ...data,
+    greeting: cleanCitations(data.greeting),
+    body:     fullBody,
+    closing:  cleanCitations(data.closing),
+    ps:       cleanCitations(data.ps),
+  };
 
   content.innerHTML = `
     <div class="slide-wrapper monday-wrap">
@@ -45,7 +57,7 @@ function renderMonday(data) {
 
   // 타이핑 애니메이션
   typeText('mon-greeting', data.greeting || '', 40, () => {
-    typeText('mon-body', fullBody, 28, () => {
+    typeText('mon-body', data.body || '', 28, () => {
       const closingEl = document.getElementById('mon-closing');
       const psEl      = document.getElementById('mon-ps');
       if (closingEl) {
