@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우리 반 아침 대시보드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body class="season-spring">
+
+  <!-- 배경 캔버스 -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- 전체 앱 -->
+  <div id="app">
+
+    <!-- 헤더 -->
+    <header id="header">
+      <div class="header-left">
+        <div id="date-display" class="header-date"></div>
+        <div id="weekday-display" class="header-weekday"></div>
+      </div>
+      <div class="header-center">
+        <div id="clock" class="clock"></div>
+      </div>
+      <div class="header-right">
+        <div id="season-badge" class="season-badge"></div>
+        <div id="day-theme-badge" class="day-theme-badge"></div>
+      </div>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main id="content">
+      <div id="loading" class="loading-screen">
+        <div class="loading-orb"></div>
+        <p class="loading-text">오늘의 콘텐츠를 준비하고 있어요...</p>
+      </div>
+    </main>
+
+    <!-- 슬라이드 인디케이터 -->
+    <div id="slide-indicator" class="slide-indicator" style="display:none;"></div>
+
+    <!-- 하단 바 -->
+    <footer id="footer">
+      <div class="footer-left">
+        <span id="school-name">우리 초등학교 4학년</span>
+      </div>
+      <div class="footer-center">
+        <div class="progress-bar-wrap">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <span id="slide-counter"></span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- JS 모듈 -->
+  <script src="js/particles.js"></script>
+  <script src="js/monday.js"></script>
+  <script src="js/tuesday.js"></script>
+  <script src="js/wednesday.js"></script>
+  <script src="js/thursday.js"></script>
+  <script src="js/friday.js"></script>
+  <script src="js/weekend.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
