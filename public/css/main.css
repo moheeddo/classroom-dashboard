@@ -688,13 +688,16 @@ body.sidebar-open #sidebar {
   line-height: 1.55;
   flex-shrink: 0;
 }
-/* JS 타이핑으로 추가된 행 */
-.poem-line.typed {
-  opacity: 1;
-  animation: lineAppear 0.4s var(--ease-out-expo);
+/* 손글씨 효과: 왼→오른쪽 서서히 나타남 */
+.poem-line.hw-hidden {
+  clip-path: inset(0 100% 0 0);
+  opacity: 0.2;
 }
-@keyframes lineAppear {
-  to { opacity: 1; transform: translateY(0); }
+.poem-line.hw-reveal {
+  clip-path: inset(0 0% 0 0);
+  opacity: 1;
+  transition: clip-path 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.5s ease;
 }
 
 .poem-mood {
